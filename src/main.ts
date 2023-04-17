@@ -1,15 +1,19 @@
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './interceptor/response/response.interceptor';
 import { HttpFilterFilter } from './filter/http-filter/http-filter.filter';
 import Swagger from './utils/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new HttpFilterFilter());
   new Swagger(app);
+
+  app.useStaticAssets(join(__dirname, 'images'));
   await app.listen(4000);
 }
 bootstrap();
