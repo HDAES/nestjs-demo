@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { UploadModule } from './upload/upload.module';
-
+import { AuthGuard } from './common/guards/auth/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { jwtConstants } from './common/guards/auth/constants';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -19,10 +22,21 @@ import { UploadModule } from './upload/upload.module';
       retryAttempts: 10, //重试连接数据库的次数
       autoLoadEntities: true, //如果为true,将自动加载实体 forFeature()方法注册的每个实体都将自动添加到配置对象的实体数组中
     }),
+    JwtModule.register({
+      global: true,
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: `${60 * 60 * 24 * 7}s` },
+    }),
     UserModule,
     UploadModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}

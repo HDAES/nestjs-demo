@@ -3,8 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import { AppModule } from './app.module';
-import { ResponseInterceptor } from './interceptor/response/response.interceptor';
-import { HttpFilterFilter } from './filter/http-filter/http-filter.filter';
+import { ResponseInterceptor } from './common/interceptor/response/response.interceptor';
+import { HttpFilterFilter } from './common/filter/http-filter/http-filter.filter';
 import Swagger from './utils/swagger';
 
 async function bootstrap() {
