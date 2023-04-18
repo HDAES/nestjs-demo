@@ -6,6 +6,8 @@ import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptor/response/response.interceptor';
 import { HttpFilterFilter } from './common/filter/http-filter/http-filter.filter';
 import Swagger from './utils/swagger';
+import { AuthGuard } from './common/guards/auth/auth.guard';
+import { ThrottlerGuard } from '@nestjs/throttler/dist/throttler.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
