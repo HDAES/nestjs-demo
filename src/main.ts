@@ -1,5 +1,6 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './interceptor/response/response.interceptor';
@@ -14,6 +15,7 @@ async function bootstrap() {
   new Swagger(app);
 
   app.useStaticAssets(join(__dirname, 'images'));
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(4000);
 }
 bootstrap();

@@ -7,6 +7,7 @@ import {
   Res,
   Body,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -49,46 +50,23 @@ export class UploadController {
   }
 
   @Get('export')
-  @ApiQuery({
-    name: 'url',
-    description: '文件地址',
-  })
-  @ApiQuery({
-    name: 'name',
-    description: '文件名字',
-    required: false,
-  })
   @ApiOperation({ summary: '文件下载' })
-  downLoad(
-    @Res() res: Response,
-    @Query('url') url: string,
-    @Query('name') name: string,
-  ) {
-    const _url = join(__dirname, `../images/${url}`);
-    res.download(_url);
+  downLoad(@Res() res: Response, @Query() query: DownloadDto) {
+    const url = join(__dirname, `../images/${query.url}`);
+    res.download(url);
   }
 
   @Get('stream')
-  @ApiQuery({
-    name: 'url',
-    description: '文件地址',
-  })
-  @ApiQuery({
-    name: 'name',
-    description: '文件名字',
-    required: false,
-  })
   @ApiOperation({ summary: '文件流下载' })
-  async down(
-    @Res() res: Response,
-    @Query('url') url: string,
-    @Query('name') name: string,
-  ) {
-    const _url = join(__dirname, `../images/${url}`);
+  async down(@Res() res: Response, @Query() query: DownloadDto) {
+    const url = join(__dirname, `../images/${query.url}`);
     const tarStream = new zip.Stream();
-    await tarStream.addEntry(_url);
+    await tarStream.addEntry(url);
     res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', `attachment; filename=${name || url}`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${query.name || query.url}`,
+    );
     tarStream.pipe(res);
   }
 }
