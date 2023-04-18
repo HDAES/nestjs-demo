@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ConfigService, ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { UploadModule } from './upload/upload.module';
 import { AuthGuard } from './common/guards/auth/auth.guard';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './common/guards/auth/constants';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ConfigService, ConfigModule } from '@nestjs/config';
 import envConfig from './config/env';
 
 @Module({
