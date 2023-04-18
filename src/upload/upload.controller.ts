@@ -22,6 +22,7 @@ import { zip } from 'compressing';
 import type { Response } from 'express';
 import { join } from 'path';
 import { DownloadDto } from './dto/download.dto';
+import { Public } from '../common/decorator/public.decorator';
 
 @ApiTags('上传文件')
 @Controller('upload')
@@ -29,6 +30,7 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post('album')
+  @Public()
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '上传文件' })
   @UseInterceptors(FileInterceptor('file'))
@@ -50,6 +52,7 @@ export class UploadController {
   }
 
   @Get('export')
+  @Public()
   @ApiOperation({ summary: '文件下载' })
   downLoad(@Res() res: Response, @Query() query: DownloadDto) {
     const url = join(__dirname, `../images/${query.url}`);

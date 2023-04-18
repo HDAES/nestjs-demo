@@ -8,6 +8,7 @@ import { UploadModule } from './upload/upload.module';
 import { AuthGuard } from './common/guards/auth/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './common/guards/auth/constants';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -27,6 +28,10 @@ import { jwtConstants } from './common/guards/auth/constants';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: `${60 * 60 * 24 * 7}s` },
     }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     UserModule,
     UploadModule,
   ],
@@ -36,6 +41,10 @@ import { jwtConstants } from './common/guards/auth/constants';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

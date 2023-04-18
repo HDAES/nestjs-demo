@@ -9,7 +9,7 @@ import Swagger from './utils/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
+  app.enableCors();
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new HttpFilterFilter());
   new Swagger(app);
