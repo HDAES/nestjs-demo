@@ -2,18 +2,25 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   UseInterceptors,
   UploadedFile,
+  Res,
+  Body,
+  Query,
 } from '@nestjs/common';
 import { UploadService } from './upload.service';
-import { CreateUploadDto } from './dto/create-upload.dto';
-import { UpdateUploadDto } from './dto/update-upload.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+  ApiBody,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { zip } from 'compressing';
+import type { Response } from 'express';
+import { join } from 'path';
+import { DownloadDto } from './dto/download.dto';
 
 @ApiTags('上传文件')
 @Controller('upload')
@@ -41,23 +48,47 @@ export class UploadController {
     return true;
   }
 
-  @Get()
-  findAll() {
-    return this.uploadService.findAll();
+  @Get('export')
+  @ApiQuery({
+    name: 'url',
+    description: '文件地址',
+  })
+  @ApiQuery({
+    name: 'name',
+    description: '文件名字',
+    required: false,
+  })
+  @ApiOperation({ summary: '文件下载' })
+  downLoad(
+    @Res() res: Response,
+    @Query('url') url: string,
+    @Query('name') name: string,
+  ) {
+    const _url = join(__dirname, `../images/${url}`);
+    res.download(_url);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.uploadService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUploadDto: UpdateUploadDto) {
-    return this.uploadService.update(+id, updateUploadDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.uploadService.remove(+id);
+  @Get('stream')
+  @ApiQuery({
+    name: 'url',
+    description: '文件地址',
+  })
+  @ApiQuery({
+    name: 'name',
+    description: '文件名字',
+    required: false,
+  })
+  @ApiOperation({ summary: '文件流下载' })
+  async down(
+    @Res() res: Response,
+    @Query('url') url: string,
+    @Query('name') name: string,
+  ) {
+    const _url = join(__dirname, `../images/${url}`);
+    const tarStream = new zip.Stream();
+    await tarStream.addEntry(_url);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename=${name || url}`);
+    tarStream.pipe(res);
   }
 }

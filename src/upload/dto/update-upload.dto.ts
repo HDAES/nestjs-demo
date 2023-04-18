@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateUploadDto } from './create-upload.dto';
+import { DownloadDto } from './download.dto';
 
-export class UpdateUploadDto extends PartialType(CreateUploadDto) {}
+export class UpdateUploadDto extends PartialType(DownloadDto) {}
