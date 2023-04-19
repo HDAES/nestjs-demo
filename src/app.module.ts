@@ -1,15 +1,26 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigService, ConfigModule } from '@nestjs/config';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+import 'winston-daily-rotate-file';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { UploadModule } from './upload/upload.module';
 import { AuthGuard } from './common/guards/auth/auth.guard';
 import envConfig from './config/env';
+import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
+import { HttpFilterFilter } from './common/filter/http-filter/http-filter.filter';
+import { ResponseInterceptor } from './common/interceptor/response/response.interceptor';
 
 @Module({
   imports: [
@@ -55,6 +66,28 @@ import envConfig from './config/env';
         limit: configService.get<number>('THROTTLER_LIMIT', 10),
       }),
     }),
+    WinstonModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        transports: [
+          new winston.transports.DailyRotateFile({
+            dirname: configService.get('LOG_DIRNAME', 'logs'),
+            filename: '%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: configService.get('LOG_MAXSIZE', '20m'),
+            maxFiles: configService.get('LOG_MAXFILES', '14d'),
+            format: winston.format.combine(
+              winston.format.timestamp({
+                format: 'YYYY-MM-DD HH:mm:ss',
+              }),
+              winston.format.json(),
+            ),
+          }),
+        ],
+      }),
+    }),
     UserModule,
     UploadModule,
   ],
@@ -69,6 +102,20 @@ import envConfig from './config/env';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    {
+      provide: APP_FILTER,
+      useClass: HttpFilterFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
