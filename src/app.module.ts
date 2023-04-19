@@ -3,8 +3,9 @@ import {
   NestModule,
   MiddlewareConsumer,
   RequestMethod,
+  ValidationPipe,
 } from '@nestjs/common';
-import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -47,16 +48,16 @@ import { ResponseInterceptor } from './common/interceptor/response/response.inte
     JwtModule.registerAsync({
       global: true,
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET_KEY', 'HADES'),
         signOptions: {
           expiresIn: configService.get<string | number>(
-            'JWT_EXPIRESIN_TIME',
+            'JWT_EXPIRES_IN_TIME',
             '30d',
           ),
         },
       }),
-      inject: [ConfigService],
     }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
@@ -76,8 +77,8 @@ import { ResponseInterceptor } from './common/interceptor/response/response.inte
             filename: '%DATE%.log',
             datePattern: 'YYYY-MM-DD',
             zippedArchive: true,
-            maxSize: configService.get('LOG_MAXSIZE', '20m'),
-            maxFiles: configService.get('LOG_MAXFILES', '14d'),
+            maxSize: configService.get('LOG_MAX_SIZE', '20m'),
+            maxFiles: configService.get('LOG_MAX_FILES', '14d'),
             format: winston.format.combine(
               winston.format.timestamp({
                 format: 'YYYY-MM-DD HH:mm:ss',
@@ -109,6 +110,10 @@ import { ResponseInterceptor } from './common/interceptor/response/response.inte
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
     },
   ],
 })

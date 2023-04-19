@@ -16,3 +16,10 @@ export const ReqDec = createParamDecorator(
     return request;
   },
 );
+
+export const ResDec = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const response = ctx.switchToHttp().getResponse();
+    return response;
+  },
+);

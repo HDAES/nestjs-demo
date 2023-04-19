@@ -1,6 +1,6 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import * as session from 'express-session';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import Swagger from './utils/swagger';
@@ -11,7 +11,14 @@ async function bootstrap() {
   new Swagger(app);
 
   app.useStaticAssets(join(__dirname, 'images'));
-  app.useGlobalPipes(new ValidationPipe());
+  app.use(
+    session({
+      secret: 'hades',
+      name: 'hades.session',
+      rolling: true,
+      cookie: { maxAge: null },
+    }),
+  );
   await app.listen(4000);
 }
 bootstrap();
