@@ -8,12 +8,17 @@ export class CreateUserDto {
   name: string;
 
   @ApiProperty({
-    description: '密码',
+    description: '账号 ',
+  })
+  account: string;
+
+  @ApiProperty({
+    description: '密码 ',
   })
   password: string;
 
   @ApiProperty({
-    description: '年龄',
+    description: '用户角色 ',
   })
-  age: number;
+  roles: string[];
 }

@@ -16,6 +16,7 @@ export class HttpFilterFilter<T> implements ExceptionFilter {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
   catch(exception: HttpException, host: ArgumentsHost) {
+    console.log(exception);
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();

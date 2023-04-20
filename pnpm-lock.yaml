@@ -23,6 +23,7 @@ specifiers:
   class-transformer: ^0.5.1
   class-validator: ^0.14.0
   compressing: ^1.9.0
+  dayjs: ^1.11.7
   eslint: ^8.0.1
   eslint-config-prettier: ^8.3.0
   eslint-plugin-prettier: ^4.0.0
@@ -60,6 +61,7 @@ dependencies:
   class-transformer: 0.5.1
   class-validator: 0.14.0
   compressing: 1.9.0
+  dayjs: 1.11.7
   express-session: 1.17.3
   multer: 1.4.5-lts.1
   mysql2: 3.2.3
@@ -2337,6 +2339,10 @@ packages:
 
   /crypt/0.0.2:
     resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
+    dev: false
+
+  /dayjs/1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
     dev: false
 
   /debug/2.6.9:
